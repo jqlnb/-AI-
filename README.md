@@ -2,7 +2,7 @@
 
 面向大学生的本机优先学习日程工具。一个共享的触屏友好界面可封装为 Windows Electron 桌面应用或 Android Capacitor 应用；有 Supabase 项目时可启用账号、云端数据同步和 AI 消息识别。核心数据默认留在设备上。
 
-**正式版本：** 1.1.0。Windows 电脑与 Android 手机使用同一 Supabase 账号登录后，可连接同一云端并同步课程、待办、提醒、审核草稿及完成状态；配置 Supabase 服务后即可启用跨设备同步。
+**正式版本：** 1.1.1。Windows 电脑与 Android 手机使用同一 Supabase 账号登录后，可连接同一云端并同步课程、待办、提醒、审核草稿及完成状态；配置 Supabase 服务后即可启用跨设备同步。
 
 **下载：** [GitHub Releases](https://github.com/jqlnb/-AI-/releases)（源码和安装包分开发布）。
 

@@ -7,5 +7,5 @@ function createWindow() {
   win.loadFile(path.join(__dirname, '..', 'dist', 'index.html'));
   win.webContents.setWindowOpenHandler(({ url }) => { if (url.startsWith('https://')) shell.openExternal(url); return { action: 'deny' }; });
 }
-app.whenReady().then(() => { ipcMain.handle('notify', (_event, payload) => { if (Notification.isSupported()) new Notification({ title: payload.title || '学习提醒', body: payload.body || '有一项任务需要关注' }).show(); }); createWindow(); app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); }); });
+app.whenReady().then(() => { ipcMain.handle('notify', (_event, payload) => { if (Notification.isSupported()) new Notification({ title: payload.title || '学习提醒', body: payload.body || '有一项任务需要关注', silent: payload.silent === true }).show(); }); createWindow(); app.on('activate', () => { if (BrowserWindow.getAllWindows().length === 0) createWindow(); }); });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
