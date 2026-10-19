@@ -115,3 +115,9 @@ test('platform notification parser creates a task only for assignment-like conte
   assert.match(noDate.description, /截止时间待补充/);
   assert.equal(parsePlatformAssignment('课程公告', '本周教学安排已发布'), null);
 });
+test('generic learning-platform notification title uses assignment text as todo title and never invents a deadline', () => {
+  const task = parsePlatformAssignment('通知', '学习通通知：作业：《高等数学A-上海电机学院》2.2函数的求导法则', new Date(2026, 9, 19));
+  assert.equal(task.title, '高等数学A-上海电机学院 2.2函数的求导法则');
+  assert.equal(task.due_at, null);
+  assert.match(task.description, /截止时间待补充/);
+});

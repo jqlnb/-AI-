@@ -93,6 +93,14 @@ export function parsePlatformAssignment(title, body, now = new Date()) {
   const cleanBody = String(body || '').trim().slice(0, 2000);
   const text = `${cleanTitle}\n${cleanBody}`.trim();
   if (!text || !/(作业|任务|测验|考试|提交|截止|课程设计|实验报告)/.test(text)) return null;
+  const genericTitle = /^(通知|消息|新消息|作业通知|学习通通知|超星通知|智慧树通知)$/i.test(cleanTitle);
+  const assignment = cleanBody.match(/(?:作业|任务|测验|考试)\s*[:：]\s*([^\n]+)/);
+  let taskTitle = cleanTitle;
+  if (genericTitle && assignment) {
+    taskTitle = assignment[1].trim().replace(/[。；;]+$/, '').replace(/^《([^》]+)》\s*(.*)$/, (_, course, detail) => `${course}${detail ? ` ${detail}` : ''}`);
+  } else if (genericTitle && cleanBody) {
+    taskTitle = cleanBody.split(/[\n。；;]/, 1)[0].trim().slice(0, 160) || cleanTitle;
+  }
   const dueMatch = text.match(/(?:(\d{4})[年/-])?(\d{1,2})[月/-](\d{1,2})[日号]?(?:\s*(\d{1,2}):(\d{2}))?/)
     || text.match(/(今天|明天|后天)(?:\s*(\d{1,2}):(\d{2}))?/);
   let dueAt = null;
@@ -113,7 +121,7 @@ export function parsePlatformAssignment(title, body, now = new Date()) {
       date.setHours(time ? Number(time[1]) : 23, time ? Number(time[2]) : 59, 0, 0); dueAt = date.toISOString();
     }
   }
-  return { title: cleanTitle || text.slice(0, 160), description: `${cleanBody}${dueAt ? '' : `${cleanBody ? '\n' : ''}截止时间待补充`}`, due_at: dueAt };
+  return { title: taskTitle || text.slice(0, 160), description: `${cleanBody}${dueAt ? '' : `${cleanBody ? '\n' : ''}截止时间待补充`}`, due_at: dueAt };
 }
 export function createTodoRecord(input, now = new Date().toISOString()) {
   return { id: input.id || newId(), title: String(input.title || '').trim(), description: String(input.description || ''), due_at: input.due_at || null, priority: ['low','medium','high'].includes(input.priority) ? input.priority : 'medium', source: input.source || '手动创建', source_detail: input.source_detail || '', status: 'open', created_at: now, updated_at: now, deleted_at: null };

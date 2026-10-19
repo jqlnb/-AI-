@@ -271,7 +271,7 @@ function render() {
 
   if (page === 'messages') {
     const panel = document.createElement('section'); panel.id = 'platform-capture'; panel.className = 'panel settings-panel';
-    panel.innerHTML = `<div class="setting-title"><div><h2>学习平台通知接入</h2><p>需你主动授权 Android 通知读取权限，并手动选择要处理的平台应用。通知内容在本机解析，不会发送给 AI。</p></div></div><p id="platform-capture-status" class="muted small">正在读取接入状态…</p><div id="platform-app-list" class="platform-app-list"></div><div class="actions"><button id="platform-access" class="button quiet">打开 Android 通知授权</button><label class="check-label"><input id="platform-capture-toggle" type="checkbox"> 启用已选择的应用</label><button id="platform-process" class="button primary">处理已收到的通知</button></div><p class="muted small">只处理平台通知中实际显示的内容；无明确截止时间时会标记“截止时间待补充”。Windows 使用下方粘贴文本方式，不读取手机或其他应用通知。</p>`;
+    panel.innerHTML = `<div class="setting-title"><div><h2>学习平台通知接入</h2><p>需你主动授权 Android 通知读取权限，并手动选择要处理的平台应用。通知内容在本机解析，不会发送给 AI。</p></div></div><p id="platform-capture-status" class="muted small">正在读取接入状态…</p><div id="platform-app-list" class="platform-app-list"></div><div class="actions"><button id="platform-access" class="button quiet">打开 Android 通知授权</button><label class="check-label"><input id="platform-capture-toggle" type="checkbox"> 启用已选择的应用</label><button id="platform-process" class="button primary">扫描通知中心并处理</button></div><p class="muted small">授权后会发现通知栏中仍显示的平台通知。请勾选“学习通”或“智慧树”，再启用接入；只处理平台通知中实际显示的内容，无明确截止时间时标记“截止时间待补充”。Windows 使用下方粘贴文本方式。</p>`;
     app.querySelector('.page-heading')?.after(panel);
     if (Capacitor.isNativePlatform()) void refreshNotificationCapture(); else panel.querySelector('#platform-capture-status').textContent = '此接入仅在 Android App 可用；桌面端请粘贴或导入消息文本。';
   }
@@ -376,12 +376,13 @@ async function syncCourseReminders({ notifyOnPermission = false } = {}) {
 }
 
 async function processCapturedNotifications() {
-  if (!Capacitor.isNativePlatform()) return;
+  if (!Capacitor.isNativePlatform()) return 0;
   try {
     const state = await NotificationCapture.getState(); if (!state.enabled || !state.authorized) return;
     const { notifications = [] } = await NotificationCapture.takeQueue(); let added = 0;
     if (notifications.length) await NotificationCapture.markProcessed({ at: Date.now() });
     for (const item of notifications) {
+      if (!state.allowedPackages?.includes(item.packageName)) continue;
       const sourceDetail = `platform-notification:${item.packageName}:${item.id}`;
       if (db.todos.some(todo => todo.source_detail === sourceDetail)) continue;
       const extracted = parsePlatformAssignment(item.title, item.body, new Date(Number(item.postedAt) || Date.now()));
@@ -390,7 +391,18 @@ async function processCapturedNotifications() {
     }
     if (added) { await commit(); render(); toast(`已从学习平台通知添加 ${added} 项待办`); }
     await NotificationCapture.clearQueue();
-  } catch { toast('读取通知队列失败；可改用下方文本粘贴导入。', 'error'); }
+    return added;
+  } catch { toast('读取通知队列失败；可改用下方文本粘贴导入。', 'error'); return 0; }
+}
+
+async function scanAndProcessPlatformNotifications() {
+  if (!Capacitor.isNativePlatform()) return;
+  try {
+    const result = await NotificationCapture.scanActiveNotifications();
+    await refreshNotificationCapture();
+    const added = await processCapturedNotifications();
+    if (!added) toast(result.queued > 0 ? '扫描到所选应用的通知，但没有识别到明确作业内容；可检查通知正文或用下方文本导入。' : '没有扫描到已勾选应用的当前通知。请勾选“学习通/智慧树”，保持作业通知在通知中心，再点击扫描。');
+  } catch { toast('无法扫描通知中心；请确认 Android 通知读取权限仍开启。', 'error'); }
 }
 
 async function refreshNotificationCapture() {
@@ -402,7 +414,7 @@ async function refreshNotificationCapture() {
     const processedText = state.lastProcessedAt ? `最近处理：${new Date(state.lastProcessedAt).toLocaleString('zh-CN')}` : state.lastCapturedAt ? `最近收到通知：${new Date(state.lastCapturedAt).toLocaleString('zh-CN')}` : '尚未收到通知';
     if (status) status.textContent = !state.authorized ? `尚未授权。点击下方按钮，在 Android 系统设置中主动允许通知读取。${state.lastProcessedAt ? ` ${processedText}` : ''}` : `${state.enabled ? '通知读取已启用；仅处理你勾选的应用，正文只在本机解析。' : '系统授权有效，接入已关闭。'} ${processedText}`;
     const apps = panel.querySelector('#platform-app-list');
-    if (apps) apps.innerHTML = state.detectedApps?.length ? state.detectedApps.map(appInfo => `<label class="check-label"><input type="checkbox" data-platform-package="${esc(appInfo.packageName)}" ${state.allowedPackages?.includes(appInfo.packageName) ? 'checked' : ''}> ${esc(appInfo.label)} <small>${esc(appInfo.packageName)}</small></label>`).join('') : '<small class="muted">暂未发现应用。授权后，先让学习通/智慧树产生一条通知，再返回此处选择该应用。</small>';
+    if (apps) apps.innerHTML = state.detectedApps?.length ? state.detectedApps.map(appInfo => `<label class="check-label"><input type="checkbox" data-platform-package="${esc(appInfo.packageName)}" ${state.allowedPackages?.includes(appInfo.packageName) ? 'checked' : ''}> ${esc(appInfo.label)} <small>${esc(appInfo.packageName)}</small></label>`).join('') : '<small class="muted">暂未发现应用。点击“扫描通知中心”，或让学习通/智慧树再发一条通知后返回此处选择平台。</small>';
     panel.querySelector('#platform-capture-toggle').checked = Boolean(state.enabled);
   } catch { const status = panel.querySelector('#platform-capture-status'); if (status) status.textContent = '当前 Android 构建未包含通知读取组件，请使用粘贴文本方式。'; }
 }
@@ -438,9 +450,9 @@ async function reconcileAutoReminder(todo, enabled) {
 function wire() {
 
   app.querySelector('#platform-access')?.addEventListener('click',async()=>{try{await NotificationCapture.openAccessSettings();toast('请在 Android 系统页面中打开“允许通知读取”，然后返回应用。');setTimeout(refreshNotificationCapture,1200);}catch{toast('无法打开系统通知读取设置。','error');}});
-  app.querySelector('#platform-capture-toggle')?.addEventListener('change',async e=>{const state=await NotificationCapture.getState();const allowed=[...app.querySelectorAll('[data-platform-package]:checked')].map(input=>input.dataset.platformPackage);await NotificationCapture.setConfiguration({enabled:e.target.checked&&state.authorized&&allowed.length>0,allowedPackages:allowed});await refreshNotificationCapture();if(e.target.checked&&!allowed.length)toast('请先选择要读取的平台应用。','error');});
-  app.querySelector('#platform-app-list')?.addEventListener('change',async()=>{const state=await NotificationCapture.getState();const allowed=[...app.querySelectorAll('[data-platform-package]:checked')].map(input=>input.dataset.platformPackage);await NotificationCapture.setConfiguration({enabled:state.enabled,allowedPackages:allowed});await refreshNotificationCapture();});
-  app.querySelector('#platform-process')?.addEventListener('click',processCapturedNotifications);
+  app.querySelector('#platform-capture-toggle')?.addEventListener('change',async e=>{const state=await NotificationCapture.getState();const allowed=[...app.querySelectorAll('[data-platform-package]:checked')].map(input=>input.dataset.platformPackage);await NotificationCapture.setConfiguration({enabled:e.target.checked&&state.authorized&&allowed.length>0,allowedPackages:allowed});await refreshNotificationCapture();if(e.target.checked&&!allowed.length)toast('请先选择要读取的学习平台应用。','error');else if(e.target.checked)await scanAndProcessPlatformNotifications();});
+  app.querySelector('#platform-app-list')?.addEventListener('change',async()=>{const state=await NotificationCapture.getState();const allowed=[...app.querySelectorAll('[data-platform-package]:checked')].map(input=>input.dataset.platformPackage);await NotificationCapture.setConfiguration({enabled:state.enabled,allowedPackages:allowed});await refreshNotificationCapture();if(state.enabled)await scanAndProcessPlatformNotifications();});
+  app.querySelector('#platform-process')?.addEventListener('click',scanAndProcessPlatformNotifications);
   if (Capacitor.isNativePlatform()) void processCapturedNotifications();
 
   app.querySelectorAll('[data-nav]').forEach(b=>b.addEventListener('click',()=>changePage(b.dataset.nav)));

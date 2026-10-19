@@ -2,9 +2,9 @@
 
 面向大学生的本机优先学习日程工具。一个共享的触屏友好界面可封装为 Windows Electron 桌面应用或 Android Capacitor 应用；有 Supabase 项目时可启用账号、云端数据同步和 AI 消息识别。核心数据默认留在设备上。
 
-**正式版本：** Windows 1.1.1 / Android 1.1.2。Windows 电脑与 Android 手机使用同一 Supabase 账号登录后，可连接同一云端并同步课程、待办、提醒、审核草稿及完成状态；配置 Supabase 服务后即可启用跨设备同步。
+**正式版本：** Windows 1.1.1 / Android 1.1.3。Windows 电脑与 Android 手机使用同一 Supabase 账号登录后，可连接同一云端并同步课程、待办、提醒、审核草稿及完成状态；配置 Supabase 服务后即可启用跨设备同步。
 
-**下载：** [Windows 安装包 1.1.1](https://github.com/jqlnb/-AI-/releases/download/v1.1.1/SmartStudyPlanner-1.1.1-Setup.exe) · [Android APK 1.1.2](https://github.com/jqlnb/-AI-/releases/download/v1.1.2/study-planner-android-1.1.2.apk) · [全部版本](https://github.com/jqlnb/-AI-/releases)（源码和安装包分开发布）。
+**下载：** [Windows 安装包 1.1.1](https://github.com/jqlnb/-AI-/releases/download/v1.1.1/SmartStudyPlanner-1.1.1-Setup.exe) · [Android APK 1.1.3](https://github.com/jqlnb/-AI-/releases/download/v1.1.3/study-planner-android-1.1.3.apk) · [全部版本](https://github.com/jqlnb/-AI-/releases)（源码和安装包分开发布）。
 
 ## 功能
 

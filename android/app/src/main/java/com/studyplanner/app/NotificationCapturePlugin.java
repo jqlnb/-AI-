@@ -47,6 +47,12 @@ public class NotificationCapturePlugin extends Plugin {
         try { JSObject result = new JSObject(); result.put("notifications", new JSArray(raw)); call.resolve(result); }
         catch (Exception error) { call.reject("读取通知队列失败。", error); }
     }
+    @PluginMethod public void scanActiveNotifications(PluginCall call) {
+        if (!accessGranted()) { call.reject("尚未授权 Android 通知读取权限。"); return; }
+        JSObject result = new JSObject();
+        result.put("queued", NotificationCaptureService.captureActiveNotifications());
+        call.resolve(result);
+    }
     @PluginMethod public void clearQueue(PluginCall call) {
         getContext().getSharedPreferences(NotificationCaptureService.PREFS, 0).edit().putString("queue", "[]").apply(); call.resolve();
     }
