@@ -2,9 +2,9 @@
 
 面向大学生的本机优先学习日程工具。一个共享的触屏友好界面可封装为 Windows Electron 桌面应用或 Android Capacitor 应用；有 Supabase 项目时可启用账号、云端数据同步和 AI 消息识别。核心数据默认留在设备上。
 
-**正式版本：** Windows 1.1.1 / Android 1.1.4。Windows 电脑与 Android 手机使用同一 Supabase 账号登录后，可连接同一云端并同步课程、待办、提醒、审核草稿及完成状态；配置 Supabase 服务后即可启用跨设备同步。
+**正式版本：** Windows 1.1.5 / Android 1.1.5。Windows 电脑与 Android 手机使用同一 Supabase 账号登录后，可连接同一云端并同步课程、待办、提醒、审核草稿及完成状态；配置 Supabase 服务后即可启用跨设备同步。
 
-**下载：** [Windows 安装包 1.1.1](https://github.com/jqlnb/-AI-/releases/download/v1.1.1/SmartStudyPlanner-1.1.1-Setup.exe) · [Android APK 1.1.4](https://github.com/jqlnb/-AI-/releases/download/v1.1.4/study-planner-android-1.1.4.apk) · [全部版本](https://github.com/jqlnb/-AI-/releases)（源码和安装包分开发布）。
+**下载：** [Windows 安装包 1.1.5](https://github.com/jqlnb/-AI-/releases/download/v1.1.5/SmartStudyPlanner-1.1.5-Setup.exe) · [Android APK 1.1.5](https://github.com/jqlnb/-AI-/releases/download/v1.1.5/study-planner-android-1.1.5.apk) · [全部版本](https://github.com/jqlnb/-AI-/releases)（源码和安装包分开发布）。
 
 ## 功能
 
@@ -12,7 +12,7 @@
 - 导入课程后默认排定上课前 15 分钟提醒；Android 使用系统本地通知，Windows 应用运行时弹出系统通知。可修改提前时间、关闭提醒，并填写学期第 1 周周一以按周次范围排程。
 - 待办创建、修改、完成、恢复、删除、优先级、截止时间、筛选和 JSON 备份。
 - 新建待办默认在截止前 1 小时安排自动提醒；可在设置中关闭默认提醒或调整提前时间，也可在单条任务上取消勾选。没有截止时间的任务不会伪造提醒时间。
-- 用户主动粘贴 QQ/微信等消息，经可配置 AI 服务识别后先进入待审核；只有用户确认才创建正式待办。Android 可通过用户明确授权的通知读取能力，选择学习平台应用并在本机解析作业通知、自动创建正式待办。
+- 用户主动粘贴 QQ/微信等消息，经可配置 AI 服务识别后先进入待审核；只有用户确认才创建正式待办。识别前提示移除敏感信息；手机号、邮箱、身份证、银行卡、密码/密钥、精确住址等明显内容会先在本机拦截，Edge Function 还会检查输入与 AI 输出并拒绝敏感结果。拒绝时不创建草稿，输入框保留内容供用户修改。该检查不能保证识别所有敏感信息，请用户仍先自行脱敏。Android 可通过用户明确授权的通知读取能力，选择学习平台应用并在本机解析作业通知、自动创建正式待办。
 - 一个任务可创建多条提醒。Android 使用本地通知；Windows 应用运行时使用系统通知；同一提醒只由创建它的设备安排本机通知。
 - 可选 Supabase 邮箱认证、账号恢复、RLS 行级数据权限和基于 `updated_at` 的轻量冲突合并；账号登录状态保持，设备数据按用户隔离，切换账号不会删除原账号数据。
 - 浅色 / 深色主题，桌面侧边栏与手机底部导航。
@@ -54,7 +54,7 @@ AI Function 的 secrets 只配置在 Supabase Edge Function，不能写入 `.env
 - 如要使用 ChatGPT/OpenAI：`AI_PROVIDER=openai`、`AI_BASE_URL=https://api.openai.com/v1`、`AI_MODEL=<你账户可用的模型>`、`AI_API_KEY=<OpenAI API key>`。ChatGPT 订阅不包含 API 用量，API 需单独计费，见 [OpenAI API 账单说明](https://help.openai.com/en/articles/9039756-managing-billing-for-chatgpt-and-the-api-platform)。
 - 也支持其他 OpenAI 兼容接口：设置 `AI_PROVIDER=openai-compatible` 并按提供商填写 `AI_BASE_URL`、`AI_MODEL` 和 `AI_API_KEY`。
 
-消息仅在用户点击“分析消息”时发送到所配置的 AI；结果仍只进入待审核草稿，不会直接创建任务。原文不存入应用数据或错误日志。`VITE_AI_FUNCTION_URL` 可留空，客户端会从 Supabase URL 推导 Function 地址。
+消息仅在用户点击“分析消息”时发送到所配置的 AI；识别到敏感信息时服务端返回拒绝且不会创建草稿，其他结果仍只进入待审核草稿，不会直接创建任务。输入框原文不存入应用数据或错误日志；敏感文本若未被本机规则发现，仍可能在用户点击分析后发送到所配置的 AI 服务，因此提交前请自行删除个人信息。`VITE_AI_FUNCTION_URL` 可留空，客户端会从 Supabase URL 推导 Function 地址。
 
 ## 本地开发
 
@@ -83,7 +83,7 @@ npm run desktop
 npm run desktop:build
 ```
 
-安装包输出到 `release/`，可创建桌面快捷方式。当前 Windows 安装包未使用商业代码签名证书，Windows 可能显示未知发布者提示。系统通知需允许 Windows 通知。Windows 通知仅在桌面客户端进程仍运行时由该客户端调度；退出客户端后不会保证提醒，尚未配置云推送服务。
+安装包输出到 `release/`，可创建桌面快捷方式。当前 Windows 安装包未使用商业代码签名证书，Windows 可能显示未知发布者提示。系统通知需允许 Windows 通知。点击窗口关闭按钮会隐藏到系统托盘，客户端继续运行并触发本机提醒；从托盘菜单选择“退出应用”后提醒停止，电脑重启后需重新启动应用。尚未配置云推送服务。
 
 ## Android 客户端
 
@@ -94,7 +94,7 @@ npm run android:sync
 npm run android:open
 ```
 
-手机侧载交付 APK 使用 `android/` 目录的 `gradlew.bat assembleRelease` 构建，输出在 `android/app/build/outputs/apk/release/app-release.apk`。当前 release variant 使用本机 Android debug 证书签名，可用于测试和覆盖安装，不是 Play 商店签名发布包。Android 13 及以上需要通知权限；Android 12 起精确提醒还受闹钟权限与厂商省电策略影响。Android 本地通知由系统排程并在重启后恢复。手机端打开“消息识别 → 学习平台通知接入”，先在系统设置中主动授权，再让学习通/智慧树产生一条通知，回应用勾选对应应用并启用。通知只在设备本机解析，原文只在待处理队列中短暂保存，生成待办后即清空；未识别截止时间时保持为空并标记待补充。撤销系统授权或关闭接入会停止读取。尚未实机验证厂商通知限制和不同学习平台通知格式。项目未配置 FCM 云推送。
+手机侧载交付 APK 使用 `android/` 目录的 `gradlew.bat assembleRelease` 构建，输出在 `android/app/build/outputs/apk/release/app-release.apk`。当前 release variant 使用本机 Android debug 证书签名，可用于测试和覆盖安装，不是 Play 商店签名发布包。Android 13 及以上需要通知权限；Android 12 起精确提醒还受闹钟权限与厂商省电策略影响。Android 本地通知由系统排程，正常关闭应用或划掉最近任务后仍可触发，并在重启后恢复；在系统设置中“强制停止”应用、撤销通知/闹钟权限或厂商省电策略限制时，提醒可能停止，需重新打开应用或调整系统设置。手机端打开“消息识别 → 学习平台通知接入”，先在系统设置中主动授权，再让学习通/智慧树产生一条通知，回应用勾选对应应用并启用。通知只在设备本机解析，原文只在待处理队列中短暂保存，生成待办后即清空；未识别截止时间时保持为空并标记待补充。撤销系统授权或关闭接入会停止读取。尚未实机验证厂商通知限制和不同学习平台通知格式。项目未配置 FCM 云推送。
 
 ## Supabase 配置与部署
 
