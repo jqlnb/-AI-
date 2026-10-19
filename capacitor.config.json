@@ -1,0 +1,13 @@
+{
+  "appId": "com.studyplanner.app",
+  "appName": "智能化AI日程学习助手",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_icon_config_sample",
+      "iconColor": "#5c6cff",
+      "sound": "reminder.wav"
+    }
+  }
+}

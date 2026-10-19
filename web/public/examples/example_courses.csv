@@ -1,0 +1,4 @@
+course_name,teacher,weekday,start_time,end_time,start_week,end_week,location,class_name,note,semester
+高等数学,王老师,周一,08:00,09:40,1,16,A教学楼 301,计算机 1 班,带教材,2026 秋
+C语言程序设计,李老师,周三,10:00-11:40,,1-16周,,实验楼 202,计算机 1 班,机房课,2026 秋
+大学英语,陈老师,星期五,13:30,15:10,2,16,外语楼 105,计算机 1 班,,2026 秋

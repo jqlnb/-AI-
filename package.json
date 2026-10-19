@@ -1,0 +1,65 @@
+{
+  "name": "smart-study-planner",
+  "version": "1.1.0",
+  "private": true,
+  "description": "大学生智能日程学习助手：Windows + Android",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "test": "node --test tests/*.test.cjs",
+    "icons": "node scripts/make-icons.cjs",
+    "example:xlsx": "node scripts/make-example-xlsx.cjs",
+    "desktop": "electron .",
+    "desktop:build": "vite build && electron-builder --win nsis",
+    "android:sync": "vite build && cap sync android",
+    "android:open": "cap open android"
+  },
+  "main": "desktop/main.cjs",
+  "dependencies": {
+    "@capacitor/android": "^7.4.3",
+    "@capacitor/core": "^7.4.3",
+    "@capacitor/local-notifications": "^7.0.3",
+    "@capacitor/preferences": "^7.0.2",
+    "@supabase/supabase-js": "^2.57.4",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.4.3",
+    "electron": "^38.2.2",
+    "electron-builder": "^26.0.12",
+    "vite": "^7.1.7"
+  },
+  "build": {
+    "appId": "com.studyplanner.desktop",
+    "productName": "智能化AI日程学习助手",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "web/**/*",
+      "dist/**/*",
+      "desktop/**/*",
+      "assets/**/*",
+      "package.json",
+      "node_modules/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "assets/app.ico",
+      "artifactName": "智能化AI日程学习助手-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "allowScripts": {
+    "electron@38.8.6": true,
+    "esbuild@0.28.2": true,
+    "electron-winstaller@5.4.0": true
+  }
+}
