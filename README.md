@@ -4,7 +4,7 @@
 
 **正式版本：** 1.1.1。Windows 电脑与 Android 手机使用同一 Supabase 账号登录后，可连接同一云端并同步课程、待办、提醒、审核草稿及完成状态；配置 Supabase 服务后即可启用跨设备同步。
 
-**下载：** [GitHub Releases](https://github.com/jqlnb/-AI-/releases)（源码和安装包分开发布）。
+**下载 v1.1.1：** [Windows 安装包](https://github.com/jqlnb/-AI-/releases/download/v1.1.1/SmartStudyPlanner-1.1.1-Setup.exe) · [Android APK](https://github.com/jqlnb/-AI-/releases/download/v1.1.1/study-planner-android-1.1.1.apk) · [全部版本](https://github.com/jqlnb/-AI-/releases)（源码和安装包分开发布）。
 
 ## 功能
 
