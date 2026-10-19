@@ -1,6 +1,6 @@
 {
   "name": "smart-study-planner",
-  "version": "1.1.1",
+  "version": "1.1.2",
   "private": true,
   "description": "大学生智能日程学习助手：Windows + Android",
   "scripts": {

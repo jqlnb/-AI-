@@ -95,6 +95,17 @@ test('course reminder falls back to weekly schedule when semester start is unkno
   assert.equal(occurrence.classAt.getDate(), 19);
   assert.equal(occurrence.weekNumber, null);
 });
+test('course reminder skips an already-passed alert and keeps upcoming classes 15 minutes early', () => {
+  const now = new Date(2026, 9, 19, 7, 50, 0);
+  const occurrences = courseReminderOccurrences([
+    { id: 'passed', weekday: 1, start_time: '08:00' },
+    { id: 'next', weekday: 1, start_time: '10:00' }
+  ], { now, daysAhead: 7 });
+  assert.equal(occurrences.length, 1);
+  assert.equal(occurrences[0].courseId, 'next');
+  assert.equal(occurrences[0].fireAt.getHours(), 9);
+  assert.equal(occurrences[0].fireAt.getMinutes(), 45);
+});
 test('platform notification parser creates a task only for assignment-like content and leaves unknown dates blank', () => {
   const task = parsePlatformAssignment('学习通作业通知', '请提交高数第三章习题，截止时间：2026年10月23日 18:00', new Date(2026, 9, 19));
   assert.equal(task.title, '学习通作业通知');

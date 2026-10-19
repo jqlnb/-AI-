@@ -3,6 +3,9 @@
   "appName": "智能化AI日程学习助手",
   "webDir": "dist",
   "bundledWebRuntime": false,
+  "android": {
+    "adjustMarginsForEdgeToEdge": "auto"
+  },
   "plugins": {
     "LocalNotifications": {
       "smallIcon": "ic_stat_icon_config_sample",
